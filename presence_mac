@@ -1,0 +1,24 @@
+#!/bin/bash
+mac=$1
+if [ "$mac" = "" ]
+then
+	echo "ERROR"
+	exit 0
+fi
+macs=$(
+	# TODO: Make the list of access points configurable
+	for ax in axeg axog axdg
+	do
+		ping -c 1 $ax >/dev/null && snmpwalk -c public -v 2c -m AIRPORT-BASESTATION-3-MIB $ax SNMPv2-SMI:enterprises.apple.airport | grep wirelessPhysAddress | awk -F\" '{print $2}' | tr '[:upper:]' '[:lower:]' | tr ':' '.'
+	done
+)
+#echo $macs
+count=$(echo $macs | grep $mac | wc -l)
+#echo $count
+if [ $count == 0 ]
+then
+	echo "OFF"
+else
+	echo "ON"
+fi
+
